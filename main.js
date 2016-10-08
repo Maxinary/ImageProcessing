@@ -6,6 +6,23 @@ function getPixelValue(imgData, x, y){
 	}
 }
 
+function getPixelValueGammaCorrected(imgData, x, y, gamma){//gamma optional
+	if(y >= 0 && y < imgData.height && x >= 0 && x < imgData.width){
+	  var data = imgData.data.slice(y*4*imgData.width+x*4, y*4*imgData.width+x*4 + 3);
+	  var out = [0,0,0];
+		for(var i=0; i<data.length;i++){
+		  if(gamma !== undefined){
+  		  out[i] = Math.pow(data[i]/255.0, 1/gamma);
+		  }else{
+  		  out[i] = Math.pow(data[i]/255.0, 1/2.2);//assume 2.2
+		  }
+		}
+		return out;
+	}else{
+		return [];
+	}
+}
+
 function max(arr){
   return Math.max.apply(null, arr);
 }
@@ -14,7 +31,7 @@ function min(arr){
   return Math.min.apply(null, arr);
 }
 
-function derivative(dat){
+function edge(dat){
   var buffer8 = new Uint8ClampedArray(dat.data.length);
   for(var i=0; i<dat.data.length; i+=4){
     var surroundRed = [];
@@ -23,7 +40,7 @@ function derivative(dat){
     
     for(var j=-1;j<2;j++){
       for(var k=-1;k<2;k++){
-  		  var color = getPixelValue(dat, Math.floor(i/4)%dat.width + j, Math.floor(i/(4*dat.width)+k));
+  		  var color = getPixelValueGammaCorrected(dat, Math.floor(i/4)%dat.width + j, Math.floor(i/(4*dat.width)+k));
   		  if(color.length !== 0){
     		  surroundRed.push(color[0]);
     		  surroundGreen.push(color[1]);
@@ -31,10 +48,10 @@ function derivative(dat){
   		  }
   	  }
     }
-  
-    buffer8[i] = (max(surroundRed)-min(surroundRed));
-    buffer8[i+1] = (max(surroundGreen)-min(surroundGreen));
-    buffer8[i+2] = (max(surroundBlue)-min(surroundBlue));
+    //reversing gamma correction
+    buffer8[i] = Math.floor(255*Math.pow((max(surroundRed)-min(surroundRed)), 2.2));
+    buffer8[i+1] = Math.floor(255*Math.pow((max(surroundGreen)-min(surroundGreen)), 2.2));
+    buffer8[i+2] = Math.floor(255*Math.pow((max(surroundBlue)-min(surroundBlue)), 2.2));
     buffer8[i+3] = 255;
   }
   
@@ -59,7 +76,7 @@ window.onload = function(){
   var imgData = ctx.getImageData(0, 0, origImg.width, origImg.height);
 
   for(var i=0;i<1;i++){
-    imgData = derivative(imgData);
+    imgData = edge(imgData);
   }
 
   ctxOut.putImageData(imgData, 0, 0);
