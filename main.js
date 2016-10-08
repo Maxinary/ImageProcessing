@@ -12,9 +12,9 @@ function getPixelValueGammaCorrected(imgData, x, y, gamma){//gamma optional
 	  var out = [0,0,0];
 		for(var i=0; i<data.length;i++){
 		  if(gamma !== undefined){
-  		  out[i] = Math.pow(data[i]/255.0, 1/gamma);
+  		  out[i] = Math.pow(data[i]/255.0, gamma);
 		  }else{
-  		  out[i] = Math.pow(data[i]/255.0, 1/2.2);//assume 2.2
+  		  out[i] = Math.pow(data[i]/255.0, 2.2);//assume 2.2
 		  }
 		}
 		return out;
@@ -40,7 +40,7 @@ function edge(dat){
     
     for(var j=-1;j<2;j++){
       for(var k=-1;k<2;k++){
-  		  var color = getPixelValueGammaCorrected(dat, Math.floor(i/4)%dat.width + j, Math.floor(i/(4*dat.width)+k));
+  		  var color = getPixelValue(dat, Math.floor(i/4)%dat.width + j, Math.floor(i/(4*dat.width)+k));
   		  if(color.length !== 0){
     		  surroundRed.push(color[0]);
     		  surroundGreen.push(color[1]);
@@ -48,10 +48,11 @@ function edge(dat){
   		  }
   	  }
     }
+    
     //reversing gamma correction
-    buffer8[i] = Math.floor(255*Math.pow((max(surroundRed)-min(surroundRed)), 2.2));
-    buffer8[i+1] = Math.floor(255*Math.pow((max(surroundGreen)-min(surroundGreen)), 2.2));
-    buffer8[i+2] = Math.floor(255*Math.pow((max(surroundBlue)-min(surroundBlue)), 2.2));
+    buffer8[i] = (max(surroundRed)-min(surroundRed));
+    buffer8[i+1] = (max(surroundGreen)-min(surroundGreen));
+    buffer8[i+2] = (max(surroundBlue)-min(surroundBlue));
     buffer8[i+3] = 255;
   }
   
