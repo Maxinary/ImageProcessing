@@ -59,6 +59,8 @@ function edge(dat){
   return new ImageData(buffer8, dat.width, dat.height);
 }
 
+var dataFn = edge;
+
 window.onload = function(){
   var c = document.getElementById("imageHolder");
   var cOut = document.getElementById("imageDrawer");
@@ -77,7 +79,7 @@ window.onload = function(){
   var imgData = ctx.getImageData(0, 0, origImg.width, origImg.height);
 
   for(var i=0;i<1;i++){
-    imgData = edge(imgData);
+    imgData = dataFn(imgData);
   }
 
   ctxOut.putImageData(imgData, 0, 0);
