@@ -2,18 +2,21 @@
 var dataFn;
 
 function matIndex(dim, x, y){
-	return shuffleNum(Math.abs(((y%2==0?x:dim-x)-2*y)%dim), dim)
+	return ((y%2==0?x%dim:dim-x%dim)+notFactor(dim)*y)%dim;
 }
 
-function shuffleNum(num, range){
-	for(var i=0; i<range; i++){
-		if(num%i == i-1){
-			num = num-i+1;
-		}else{
-			num += 1;
-		}
-	}
-	return num%range;
+//finds the number which is not a factor which is closest to 1/2 the number
+function notFactor(n){
+  var half = Math.floor(n/2);
+  for(var i=0; i<half; i++){
+    if(n%(half-i)){
+      return half-i;
+    }
+    if(n%(half+i)){
+      return half+i;
+    }
+  }
+  return 1;
 }
 
 function getColors(image, numColors){
